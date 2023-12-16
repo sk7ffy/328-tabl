@@ -2,9 +2,9 @@ import sqlite3
 conn = sqlite3.connect('quiziz')
 
 cursor = conn.cursor()
-#cursor.execute('DROP TABLE IF EXISTS quiziz')
-#cursor.execute('DROP TABLE IF EXISTS questions')
-#cursor.execute('DROP TABLE IF EXISTS quiz_content')
+cursor.execute('DROP TABLE IF EXISTS quiziz')
+cursor.execute('DROP TABLE IF EXISTS questions')
+cursor.execute('DROP TABLE IF EXISTS quiz_content')
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS quiziz(id INTEGER PRIMARY KEY,name VARCHAR)
 
@@ -30,25 +30,37 @@ conn.commit()
 
 questions = [
  ('33+33','66','77','22','11'),
- ('11+33','44','47','62','11')  
+ ('11+33','44','47','62','11'),  
 ]
 
 cursor.executemany(''' INSERT INTO questions (question,answer,wrong1,wrong2,wrong3)VALUES(?,?,?,?,?)''',questions)
 
 quiziz = [
 ('math quiziz',),
-('math quiziz',)
+('math quiziz2',)
    
 ] 
 
+quiz_content = [
+    (1,1),
+    (1,2),
+]
 cursor.executemany('''INSERT INTO quiziz (name) VALUES (?)''',quiziz)
 conn.commit()
 
+
+
 cursor.execute('''INSERT INTO quiz_content (quiz_id,question_id)VALUES (?,?)''',[1,2])
 conn.commit()
-
+ 
 cursor.execute('''SELECT * FROM questions,quiz_content WHERE questions.id == quiz_content.question_id AND quiz_content.quiz_id == ?''',[1])
 
 data = cursor.fetchall()
 
-print(data)
+def get_question(quiz_id,question_id):
+    conn = sqlite3.connect('quiziz')
+    cursor = conn.cursor()
+
+    cursor.execute('''SELECT * FROM questions, quiz_content WHERE quiz_content.question_id == questions.id AND questions.id == ? AND quiz_content.quiz_id ==?''',[question_id,quiz_id])
+    data = cursor.fetchall()
+    return data
